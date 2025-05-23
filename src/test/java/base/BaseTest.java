@@ -1,40 +1,28 @@
 package base;
 
-import com.microsoft.playwright.*;
-import org.junit.jupiter.api.*;
-import java.nio.file.Paths;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class BaseTest {
-
-
-    Playwright playwright;
-    Browser browser;
-    BrowserContext context;
-    public  Page page;
-
+    protected Playwright playwright;
+    protected Browser browser;
+    protected Page page;
 
     @BeforeEach
-    void createPage() {
+    public void setUp() {
         playwright = Playwright.create();
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
-        context = browser.newContext(new Browser.NewContextOptions()
-                .setRecordVideoDir(Paths.get("videos/")));
-        page = context.newPage();
+        page = browser.newPage();
     }
 
-//    @AfterAll
-//    static void teardown() {
-//        browser.close();
-//        playwright.close();
-//        // Генерация отчета после всех тестов
-//        HtmlReportGenerator.generateReport(
-//                CustomReportExtension.getResults(),
-//                "test-report.html"
-//        );
-//    }
-
-
-    public Page getPage() {
-        return page;
+    @AfterEach
+    public void tearDown() {
+        page.close();
+        browser.close();
+        playwright.close();
     }
 }

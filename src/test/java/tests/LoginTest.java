@@ -1,22 +1,30 @@
 package tests;
 
 import base.BaseTest;
+import config.Config;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-
+import pages.CartPage;
+import pages.LoginPage;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LoginTest extends BaseTest {
 
+    private LoginPage loginPage;
+    private CartPage cartPage;
+
+    @BeforeEach
+    public void setUp() {
+        super.setUp();
+        loginPage = new LoginPage(page);
+        cartPage = new CartPage(page);
+    }
 
     @Test
     void testAddMultipleProductsToCart() {
-        page.navigate("https://ginandjuice.shop");
-        page.locator("a.account-icon").click();
-        page.locator("input[name='username']").fill("carlos");
-        page.locator("button:text('Log in')").click();
-        page.locator("input[name='password']").fill("hunter2");
-        page.locator("button:text('Log in')").click();
-        page.locator("div.scanme-logo").click();
+        page.navigate(Config.BASE_URL);
+        loginPage.login("carlos", "hunter2");
+        cartPage.addToCart();
     }
 }
