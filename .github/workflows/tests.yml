@@ -1,0 +1,53 @@
+name: Java Playwright Tests
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Установка Java 17
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Кеширование зависимостей Maven
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Установка системных зависимостей для Playwright
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgbm-dev x11-xkb-utils
+
+      # Запуск Xvfb и тестов
+      - name: Run tests
+        run: |
+          export DISPLAY=:0
+          Xvfb :0 -screen 0 1280x720x24 >/dev/null 2>&1 &
+          mvn test -Dtest=LoginTest
+
+      # Проверка содержимого папки с видео
+      - name: Check video directory
+        run: |
+          echo "Contents of videos directory:"
+          ls -la videos/
+
+      # Загрузка видео как артефактов
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos
+          path: videos/
