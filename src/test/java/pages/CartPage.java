@@ -10,26 +10,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CartPage {
     private final Page page;
     private final Locator addToCart;
-    private final Locator product;
+
     private final Locator cartIcon;
     private final Locator price;
 
     public CartPage(Page page) {
         this.page = page;
-        this.addToCart = page.locator("button:text('Add to cart')");
-        this.product = page.locator("h3:text('Pineapple Edition Cocktail')");
-        this.cartIcon =  page.locator("a.cart-icon");
-        this.price =page.locator("strong:text('$30.50')");
+        this.addToCart = page.locator("button:text('Add to cart')").nth(0);
+        this.cartIcon =  page.locator("div.shopping_cart_container");
+        this.price =page.locator("div:text('Sauce Labs Backpack')");
     }
 
 
 
-    public void addToCart() {
-        product.click();
+    public void navigateToCart() {
         addToCart.waitFor(new Locator.WaitForOptions().setTimeout(3000));
         addToCart.click();
         cartIcon.click();
-        price.waitFor(new Locator.WaitForOptions().setTimeout(3000));
-        assertTrue(price.isVisible(), "Текст '$30.50' виден на странице");
+    }
+
+
+        public void getCartItems() {
+        assertTrue(price.isVisible(), "Текст 'Sauce Labs Backpack' виден на странице");
     }
 }

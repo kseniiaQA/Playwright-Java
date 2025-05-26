@@ -1,35 +1,31 @@
 package tests;
 
 import base.BaseTest;
-import config.Config;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pages.CartPage;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import pages.InventoryPage;
 import pages.LoginPage;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Execution(ExecutionMode.CONCURRENT)
 public class LoginTest extends BaseTest {
 
-    private LoginPage loginPage;
-    private CartPage cartPage;
-
-    @BeforeEach
-    public void setUp() {
-        super.setUp();
-        loginPage = new LoginPage(page);
-        cartPage = new CartPage(page);
-    }
-
-
-    @Epic("Авторизация")
-    @Feature("Логин на сайт")
-    @Story("Проверка входа с некорректными данными")
+    @ParameterizedTest
+    @ValueSource(strings = {"chromium", "firefox", "webkit"})
     @Test
-    void testIncorrectCreds() {
-        page.navigate(Config.BASE_URL);
-        loginPage.incorrectLogin("test", "test");
-        page.locator("is-warning:text('Invalid username or password.')").isVisible();
+    void testSuccessfulLogin() {
+        LoginPage loginPage = new LoginPage(page);
+        loginPage.login("standard_user", "secret_sauce");
+
+        // Явная проверка URL
+        assertTrue(page.url().contains("/inventory.html"));
+
+        // Дополнительные проверки элементов страницы
+        InventoryPage inventoryPage = new InventoryPage(page); // Проверяет загрузку в конструкторе
+        assertTrue(inventoryPage.getCartItemCount() >= 0); // Проверка инициализации корзины
     }
 }

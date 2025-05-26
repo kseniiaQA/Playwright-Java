@@ -1,48 +1,40 @@
 package tests;
 
 import base.BaseTest;
-import config.Config;
-import io.qameta.allure.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pages.CartPage;
+import pages.InventoryPage;
 import pages.LoginPage;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class CartTest extends BaseTest {
+@Execution(ExecutionMode.CONCURRENT)
+public class CartTest extends BaseTest { // Тестовый класс для проверки работы с корзиной
 
-    private LoginPage loginPage;
-    private CartPage cartPage;
 
-    @BeforeEach
-    public void setUp() {
-        super.setUp();
-        loginPage = new LoginPage(page);
-        cartPage = new CartPage(page);
-    }
-
+    @ParameterizedTest
+    @ValueSource(strings = {"chromium", "firefox", "webkit"})
     @Test
-    @Description("Проверка добавления товара в корзину и соответствия цены")
-    void testCheckPriceForAddedProduct() {
-        navigateToHomePage();
-        login("carlos", "hunter2");
-        addToCart();
-    }
+    void testAddToCart() {
+        // Инициализация страницы авторизации
+        LoginPage loginPage = new LoginPage(page);
 
-    @Step("Навигация на главную страницу")
-    void navigateToHomePage() {
-        page.navigate(Config.BASE_URL);
-    }
+        // Выполнение авторизации с валидными данными
+        loginPage.login("standard_user", "secret_sauce");
 
-    @Step("Вход в систему с пользователем {username}")
-    void login(String username, String password) {
-        loginPage.login(username, password);
-    }
+        // Переход на страницу товаров
+        InventoryPage inventoryPage = new InventoryPage(page);
+        // Добавление конкретного товара в корзину
+        inventoryPage.addProductToCart("Sauce Labs Backpack");
 
-    @Step("Добавление товара в корзину")
-    void addToCart() {
-        cartPage.addToCart();
-    }
+        // Инициализация страницы корзины
+        CartPage cartPage = new CartPage(page);
+        // Переход в корзину
+        cartPage.navigateToCart();
 
+        // Проверка наличия добавленного товара в корзине
+        cartPage.getCartItems();
+    }
 }
