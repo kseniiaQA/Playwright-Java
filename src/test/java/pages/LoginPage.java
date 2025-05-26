@@ -28,4 +28,12 @@ public class LoginPage {
         submitButton.click();
         logo.click();
     }
+
+    public void incorrectLogin(String usernameStr, String passwordStr) {
+        loginIcon.click();
+        username.fill(usernameStr);
+        submitButton.click();
+        password.fill(passwordStr);
+        submitButton.click();
+    }
 }
