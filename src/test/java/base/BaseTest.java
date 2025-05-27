@@ -24,9 +24,7 @@ public class BaseTest {
     protected BrowserContext context;
     protected Page page;
 
-    /**
-     * Авто-скриншоты при падении тестов
-     */
+
     @RegisterExtension
     ScreenshotWatcher screenshotWatcher = new ScreenshotWatcher();
 
@@ -36,14 +34,11 @@ public class BaseTest {
         extent.attachReporter(spark);
     }
 
-    /**
-     * Перед тестом: запуск браузера и инициализация страницы
-     */
     @BeforeEach
     void setup() {
         test = extent.createTest(this.getClass().getSimpleName());
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
         context = browser.newContext();
         page = context.newPage();
     }
@@ -61,12 +56,5 @@ public class BaseTest {
 //        browser.close();
         playwright.close();
         extent.flush();
-    }
-
-    /**
-     * Логирование в отчет
-     */
-    public void logInfo(String message) {
-        test.log(Status.INFO, message);
     }
 }

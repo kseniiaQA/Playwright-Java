@@ -5,13 +5,9 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        browser: [chromium]
-
     steps:
       - uses: actions/checkout@v4
-      - run: mvn test -Dbrowser=${{ matrix.browser }}
+      - run: mvn test
 
 
       # Установка Java 17
