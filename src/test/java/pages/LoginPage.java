@@ -1,65 +1,56 @@
 package pages;
 
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
+import config.ConfigReader;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+public class LoginPage {
 
-public class LoginPage { // Класс, инкапсулирующий логику работы со страницей авторизации
+    private final Page page;
 
-    private final Page page; // Экземпляр страницы Playwright
-    private Properties properties = new Properties();
+    // Локаторы элементов на странице логина
+    private final String usernameSelector;
+    private final String passwordSelector;
+    private final String loginButtonSelector;
 
-    // Метод для загрузки свойств из файла
-    public void loadProperties() {
-        try (FileInputStream fis = new FileInputStream("src/test/resources/config.properties")) {
-            properties.load(fis);
-            System.out.println("Файл конфигурации загружен успешно.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Не удалось загрузить файл конфигурации", e);
-        }
-    }
-
-    // Метод для перехода на URL
-    public void navigateToBaseUrl(Page page) {
-        String baseUrl = properties.getProperty("baseUrl");
-        if (baseUrl == null || baseUrl.isEmpty()) {
-            throw new RuntimeException("baseUrl не задан в config.properties");
-        }
-        page.navigate(baseUrl);
-    }
 
     // Конструктор класса
-    public LoginPage(Page page) {
-        this.page = page; // Инициализация объекта страницы
-        loadProperties();
-        navigateToBaseUrl(page);
-        // Ожидание загрузки DOM-структуры страницы
+    public LoginPage(Page page) throws IOException {
+        this.page = page;
+
+        // Загружаем селекторы из selectors.properties
+        Properties selectors = new Properties();
+        selectors.load(new FileInputStream("src/test/resources/selectors.properties"));
+
+        // Инициализация локаторов
+        usernameSelector = selectors.getProperty("usernameSelector");
+        passwordSelector = selectors.getProperty("passwordSelector");
+        loginButtonSelector = selectors.getProperty("loginButtonSelector");
+
+        // Загружаем базовые данные из config.properties
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+
+        // Навигация на базовый URL
+        page.navigate(baseUrl);
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
     }
 
-    // Метод для выполнения авторизации
+    // Метод для выполнения логина
     public void login(String username, String password) {
-        // Ожидание появления полей ввода
-        page.locator("input[data-test='username']").waitFor();
-        page.locator("input[data-test='password']").waitFor();
+        // Ожидание наличия элементов на странице
+        page.locator(usernameSelector).waitFor();
+        page.locator(passwordSelector).waitFor();
 
-        // Заполнение полей логина и пароля
-        page.fill("input[data-test='username']", username); // Ввод имени пользователя
-        page.fill("input[data-test='password']", password); // Ввод пароля
+        // Заполнение полей логина
+        page.fill(usernameSelector, username);
+        page.fill(passwordSelector, password);
 
-        // Клик по кнопке авторизации
-        page.click("input[data-test='login-button']");
+        // Клик по кнопке логина
+        page.click(loginButtonSelector);
 
-        // Ожидание перехода на целевую страницу после логина
-        page.waitForURL(
-                url -> url.contains("/inventory.html"), // Проверка целевого URL
-                new Page.WaitForURLOptions().setTimeout(10000) // Таймаут 10 секунд
-        );
     }
 }
