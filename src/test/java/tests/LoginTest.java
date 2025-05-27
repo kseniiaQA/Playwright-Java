@@ -28,8 +28,8 @@ public class LoginTest extends BaseTest {
                 ConfigReader.getProperty("password")
         );
 
-        assertTrue(page.url().contains("/inventory.html"), "URL после логина не содержит /inventory.html");
 
+        assertTrue(page.url().contains("/inventory.html"), "URL после логина не содержит /inventory.html");
         InventoryPage inventoryPage = new InventoryPage(page);
         assertTrue(inventoryPage.getCartItemCount() >= 0, "Количество товаров в корзине должно быть >= 0");
     }
