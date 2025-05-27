@@ -56,9 +56,9 @@ public class BaseTest {
         if (ScreenshotWatcher.getLastScreenshotPath() != null) {
             test.addScreenCaptureFromPath(ScreenshotWatcher.getLastScreenshotPath());
         }
-        page.close();
-        context.close();
-        browser.close();
+//        page.close();
+//        context.close();
+//        browser.close();
         playwright.close();
         extent.flush();
     }
