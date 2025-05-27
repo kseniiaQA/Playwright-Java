@@ -1,7 +1,6 @@
 package tests;
 
 import base.BaseTest;
-import com.microsoft.playwright.BrowserType;
 import config.ConfigReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -17,8 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Execution(ExecutionMode.CONCURRENT)
 public class LoginTest extends BaseTest {
 
-//    @ParameterizedTest
-//    @ValueSource(strings = {"chromium", "firefox", "webkit"})
+    @ParameterizedTest
+    @ValueSource(strings = {"chromium", "firefox", "webkit"})
+    @Test
     void testSuccessfulLogin() throws IOException {
         LoginPage loginPage = new LoginPage(page);
         // Навигация на базовый URL из конфига
@@ -28,7 +28,6 @@ public class LoginTest extends BaseTest {
                 ConfigReader.getProperty("password")
         );
 
-        // Проверяем, что после логина URL содержит /inventory.html
         assertTrue(page.url().contains("/inventory.html"), "URL после логина не содержит /inventory.html");
 
         InventoryPage inventoryPage = new InventoryPage(page);

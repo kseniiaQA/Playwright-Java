@@ -2,34 +2,46 @@ package pages;
 
 import com.microsoft.playwright.Page;
 
-public class CheckoutPage { // Объявление класса CheckoutPage, который представляет страницу оформления заказа
-    private final Page page; // Объявление переменной page типа Page для взаимодействия с элементами страницы
-    private final String FIRST_NAME_INPUT = "#first-name"; // CSS-селектор для поля ввода имени
-    private final String LAST_NAME_INPUT = "#last-name"; // CSS-селектор для поля ввода фамилии
-    private final String POSTAL_CODE_INPUT = "#postal-code"; // CSS-селектор для поля ввода почтового кода
-    private final String CONTINUE_BUTTON = "#continue"; // CSS-селектор для кнопки продолжения
-    private final String FINISH_BUTTON = "#finish"; // CSS-селектор для кнопки завершения покупки
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
-    public CheckoutPage(Page page) { // Конструктор класса, принимающий объект Page в качестве параметра
-        this.page = page; // Инициализация переменной page переданным объектом
+public class CheckoutPage {
+    private final Page page;
+    private final Properties selectors = new Properties();
+
+    public CheckoutPage(Page page) {
+        this.page = page;
+        loadSelectors();
     }
 
-    public void fillShippingInfo(String firstName, String lastName, String postalCode) { // Метод для заполнения информации о доставке
-        page.fill(FIRST_NAME_INPUT, firstName); // Заполнение поля имени
-        page.fill(LAST_NAME_INPUT, lastName); // Заполнение поля фамилии
-        page.fill(POSTAL_CODE_INPUT, postalCode); // Заполнение поля почтового кода
-        page.click(CONTINUE_BUTTON); // Клик по кнопке продолжения для перехода к следующему шагу
+    private void loadSelectors() {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("selectors.properties")) {
+            if (input == null) {
+                throw new RuntimeException("Не найден файл selectors.properties в classpath");
+            }
+            selectors.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при загрузке selectors.properties", e);
+        }
     }
 
-    public void completePurchase() { // Метод для завершения покупки
-        page.click(FINISH_BUTTON); // Клик по кнопке завершения покупки
+    public void fillShippingInfo(String firstName, String lastName, String postalCode) {
+        page.fill(selectors.getProperty("firstNameInput"), firstName); // Заполнение поля имени
+        page.fill(selectors.getProperty("lastNameInput"), lastName); // Заполнение поля фамилии
+        page.fill(selectors.getProperty("postalCodeInput"), postalCode); // Заполнение поля почтового кода
+        page.click(selectors.getProperty("continueButton")); // Клик по кнопке продолжения
     }
 
-    public boolean isOrderConfirmed() { // Метод для проверки, подтвержден ли заказ
-        return page.isVisible(".complete-header"); // Возвращает true, если элемент с классом .complete-header видим (заказ подтвержден)
+    public void completePurchase() {
+        page.click(selectors.getProperty("finishButton")); // Клик по кнопке завершения покупки
     }
 
-    public String getConfirmationMessage() { // Метод для получения сообщения о подтверждении заказа
-        return page.textContent(".complete-header"); // Возвращает текстовое содержимое элемента с классом .complete-header
+    public boolean isOrderConfirmed() {
+        return page.isVisible(selectors.getProperty("completeHeader")); // Проверка видимости заголовка подтверждения заказа
+    }
+
+    public String getConfirmationMessage() {
+        return page.textContent(selectors.getProperty("completeHeader")); // Получение текста сообщения о подтверждении заказа
     }
 }

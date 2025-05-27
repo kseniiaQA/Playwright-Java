@@ -4,6 +4,10 @@ import base.BaseTest;
 import com.microsoft.playwright.Page;
 import config.ConfigReader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pages.CartPage;
 import pages.CheckoutPage;
 import pages.InventoryPage;
@@ -11,8 +15,13 @@ import pages.LoginPage;
 import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+@Execution(ExecutionMode.CONCURRENT)
 public class CheckoutTest extends BaseTest {
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {"chromium", "firefox", "webkit"})
     @Test
     void testSuccessfulCheckout() throws IOException {
         // Авторизация и добавление товара

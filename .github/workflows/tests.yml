@@ -8,7 +8,6 @@ jobs:
     strategy:
       matrix:
         browser: [ chromium, firefox, webkit ]
-        fail-fast: false  # Не останавливать при падении одного теста
 
     steps:
       - uses: actions/checkout@v4
